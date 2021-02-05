@@ -1,6 +1,8 @@
 :warning: WARNING
 ```diff
-- I am not an Angular expert so the code produced may not be optimised. The foked Repo has been updated since I made these enhancements (September 2020) as well as Angular so the code may not work with the new version.
+- I am not an Angular expert so the code produced may not be optimised. 
+- The foked Repo has been updated since I made these enhancements (September 2020)
+- as well as Angular so the code may not work with the new version.
 ```
 I will soon be resuming the work left undone to do a PR with the updated and thoroughly tested code.
 
