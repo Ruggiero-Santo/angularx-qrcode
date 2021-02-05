@@ -1,3 +1,9 @@
+:warning: WARNING
+```diff
+- I am not an Angular expert so the code produced may not be optimised. The foked Repo has been updated since I made these enhancements (September 2020) as well as Angular so the code may not work with the new version.
+```
+I will soon be resuming the work left undone to do a PR with the updated and thoroughly tested code.
+
 # angularx-qrcode
 
 `angularx-qrcode` is a fast and easy-to-use Ionic 3/4/5 and Angular4-10 QR Code component/module library to generate QR Codes (Quick Response) in your Ionic and Angular 4/5/6/7/8/9/10 app with support for AOT and the Ivy compiler and runtime. It is a drop-in replacement for the no-longer-maintained angular2 component `ng2-qrcode` and based on node-qrcode.

@@ -1,3 +1,9 @@
+:warning: WARNING
+```diff
+- I am not an Angular expert so the code produced may not be optimised. The foked Repo has been updated since I made these enhancements (September 2020) as well as Angular so the code may not work with the new version.
+```
+I will soon be resuming the work left undone to do a PR with the updated and thoroughly tested code.
+
 # angularx-qrcode
 
 `angularx-qrcode` is a fast and easy-to-use Ionic 3/4/5 and Angular4-10 QR Code component/module library to generate QR Codes (Quick Response) in your Ionic and Angular 4/5/6/7/8/9/10 app with support for AOT and the Ivy compiler and runtime. It is a drop-in replacement for the no-longer-maintained angular2 component `ng2-qrcode` and based on node-qrcode.
@@ -11,7 +17,7 @@ An Angular app with a working implementation of angularx-qrcode is available at
 
 Starting with angularx-qrcode 10, major versions of angular and angularx-qrcode are synchronized, so angular 10 requires angularx-qrcode 10, making it easier to use the right version.
 
-```bash
+```
 # Angular 10 and Ionic
 npm install angularx-qrcode --save
 # Or use yarn
@@ -20,7 +26,7 @@ yarn add angularx-qrcode
 
 ## Install angularx-qrcode 2.3.x with Angular 9
 
-```bash
+```
 # Angular 9 and Ionic
 npm install angularx-qrcode@~2.3.5 --save
 # Or use yarn
@@ -29,7 +35,7 @@ yarn add angularx-qrcode@~2.3.5
 
 ## Install angularx-qrcode 2.1.x with Angular 8
 
-```bash
+```
 # Angular 8 and Ionic
 npm install angularx-qrcode@~2.1.4 --save
 # Or use yarn
@@ -38,7 +44,7 @@ yarn add angularx-qrcode@~2.1.4
 
 ## Older Angular Versions
 
-```bash
+```
 # Angular 5/6/7
 npm install angularx-qrcode@1.6.4 --save
 # Angular 4
@@ -59,11 +65,11 @@ npm install angularx-qrcode@1.0.3 --save
 
 Upgrading should be simple. If any deprecated field is used, angularx-qrcode logs a warning to your browser console with the field name which should be renamed.
 
-```html
-<!-- Old code in 1.x -->
+```
+# Old code in 1.x
 <qrcode [qrdata]="'Your data'" [size]="256" [level]="'M'" usesvg="true"></qrcode>
 
-<!-- New code in 2.x or 10.x -->
+# New code in 2.x or 10.x
 <qrcode [qrdata]="'Your data'" [width]="256" [errorCorrectionLevel]="'M'" [elementType]="'svg'"></qrcode>
 ```
 
@@ -79,7 +85,7 @@ Upgrading should be simple. If any deprecated field is used, angularx-qrcode log
 
 ### Import the module and add it to your imports section in your main AppModule:
 
-```ts
+```
 // File: app.module.ts
 // all your imports
 import { QRCodeModule } from 'angularx-qrcode';
@@ -99,26 +105,23 @@ export class AppModule { }
 
 ## Examples: How to implement angularx-qrcode
 
-### Generate static QR Code with only html file
+### Generate a QR Code from a string (directive only)
 
 Now that Angular/Ionic knows about the new QR Code module,
 let's invoke it from our template with a directive.
 If we use a simple text-string, we need no additional
 code in our controller.
 
-```html
-<qrcode qrdata="Your data string" width="256" errorCorrectionLevel="M"></qrcode>
 ```
-### Create a QR Code from a variable in your controller (directive only)
-
-In addition to our `<qrcode>`, we must add the directive in `example.component.html`:
-
-```html
-<!-- File: example.html -->
-<qrcode [qrdata]="myAngularxQrCode" width="256" errorCorrectionLevel="M"></qrcode>
+<qrcode [qrdata]="'Your data string'" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
 ```
-and lets add two lines of code to our controller `example.component.ts`.
-```ts
+
+### Create a QR Code from a variable in your controller
+
+In addition to our `<qrcode>`-directive in `example.html`,
+lets add two lines of code to our controller `example.ts`.
+
+```
 // File: example.ts
 export class QRCodeComponent {
   public myAngularxQrCode: string = null;
@@ -127,42 +130,18 @@ export class QRCodeComponent {
     this.myAngularxQrCode = 'Your QR code data string';
   }
 }
+
+// File: example.html
+<qrcode [qrdata]="myAngularxQrCode" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
 ```
 
-### Download generated QRCode
-You can easily make generated QRCode downloadable by clicking directly on it.
-
-In `example.component.ts` nothing must be modified, while in `example.component.html` need to be add only attribute `downloadOnCLick`.
-```html
-<qrcode 
-  [qrdata]="myAngularxQrCode"
-  cssClass="generatedQRCode"
-  errorCorrectionLevel="M"
-  width=256
-  downloadOnCLick>
-</qrcode>
-```
-
-You can even associate the download on a button, like in the example below, but the `qrcodeTag.downloadQRCode()` function can be used associated with any type of event or tag. You just have to be careful to insert the identifier in the qrcode tag with #, in the example the identifier is `#qrcodeTag`.
-```html
-<qrcode 
-  [value]="value"
-  errorCorrectionLevel="L"
-  elementType="svg"
-  colorDark=#0F0
-  #qrcodeTag>
-</qrcode></br>
-<button (click)="qrcodeTag.downloadQRCode()">Download QRCode</button>
-```
-The two options can be used simultaneously.
-
-# All Parameters
+## Parameters
 
 | Attribute            | Type    | Default     | Description                                                    |
 | -------------------- | ------- | ----------- | -------------------------------------------------------------- |
 | allowEmptyString     | Boolean | false       | Allow qrdata to be an empty string                             |
-| colorDark            | String  | '#000000ff' | RGB or RGBA color, color of dark module                        |
-| colorLight           | String  | '#ffffffff' | RGB or RGBA color, color of light module                       |
+| colorDark            | String  | '#000000ff' | RGBA color, color of dark module                               |
+| colorLight           | String  | '#ffffffff' | RGBA color, color of light module                              |
 | cssClass             | String  | 'qrcode'    | CSS Class                                                      |
 | elementType          | String  | 'canvas'    | 'canvas', 'svg', 'img', 'url' (alias for 'img')                |
 | errorCorrectionLevel | String  | 'M'         | QR Correction level ('L', 'M', 'Q', 'H')                       |
@@ -170,8 +149,11 @@ The two options can be used simultaneously.
 | qrdata               | String  | ''          | String to encode                                               |
 | scale                | Number  | 4           | Scale factor. A value of 1 means 1px per modules (black dots). |
 | version              | Number  | (auto)      | 1-40                                                           |
-| width                | Number  | 10          | Height/Width (any value). For "canvas", "img" and "url" type there is a min value, automatically computed, according how much data is encoded.|
-| downloadOnCLick      | Boolean | false       | If attribute is present the qrcode will be downloadable OnClick.|
+| width                | Number  | 10          | Height/Width (any value)                                       |
+
+## Note
+
+Depending on the amount of data of the _qrdata_ to encode, a minimum _width_ is required.
 
 ## AOT - Ahead Of Time Compilation
 
@@ -182,10 +164,9 @@ The two options can be used simultaneously.
 As of version 1.6.0, SSR support is fully implemented, the following workaround is no longer needed. [HowTo use Angular QRCode with SSR](https://github.com/Cordobo/angularx-qrcode/issues/5)
 
 ## Available commands
-```bash
-  # Build
-  npm run build
-```
+
+    # Build
+    npm run build
 
 ## Contribution
 

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, ElementRef, Input, OnChanges, Renderer2, ViewChild } from '@angular/core';
 
-import { QRCodeErrorCorrectionLevel, QRCodeVersion, QRCodeElementType } from './types';
+import { QRCodeErrorCorrectionLevel, QRCodeVersion, QRCodeElementType, QRCodeCoveragePercentage } from './types';
 
 import QRCode from 'qrcode';
 
@@ -33,6 +33,9 @@ export class QRCodeComponent implements OnChanges {
   @Input() public version: QRCodeVersion;
   @Input() public width = 10;
   @Input() public downloadOnClick: boolean;
+  @Input() public alt: string;
+  @Input() public logo: File | string;
+  @Input() public coveragePercentage: number;
 
   @ViewChild('qrcElement', { static: true }) public qrcElement: ElementRef;
 
@@ -69,125 +72,105 @@ export class QRCodeComponent implements OnChanges {
   }
 
   private createQRCode(): void {
+    const QRCodeOptionData = {
+      scale: this.scale,
+      width: this.width,
+      margin: this.margin,
+      version: this.version,
+      type: undefined,
+      errorCorrectionLevel: this.errorCorrectionLevel,
+      color: {
+        dark: this.colorDark,
+        light: this.colorLight,
+      },
+    };
+
+    let coeff = this.coveragePercentage;
+    if (this.coveragePercentage === undefined) {
+      coeff = QRCodeCoveragePercentage[this.errorCorrectionLevel];
+    }
+
     try {
-      let element: HTMLElement;
-      switch (this.elementType) {
-        case 'svg':
-          element = this.renderer.createElement('svg', 'svg');
-          this.toSVG().then((svgString: string) => {
-            element.innerHTML = svgString;
-            this.renderer.setAttribute(element, 'height', `${this.width}`);
-            this.renderer.setAttribute(element, 'width', `${this.width}`);
+      let element: any;
+      if (this.elementType === QRCodeElementType.svg) {
+        // Generation of SVG Component
+        element = document.createElement('template');
+
+        QRCodeOptionData.type = 'svg';
+        QRCode.toString(this.qrdata, QRCodeOptionData, (err: any, svgString: string) => {
+          if (err) { throw err; }
+
+          element.innerHTML = svgString.trim();
+          element = element.content.firstChild as HTMLElement;
+          this.renderer.setAttribute(element, 'height', `${this.width}`);
+          this.renderer.setAttribute(element, 'width', `${this.width}`);
+          this.loadLogo(element).then((logo) => {
+            // Add logo if avaiable
+            const size = coeff * 100;
+            const pos = ((1 - coeff) / 2) * 100;
+            element.innerHTML += `<image href="${logo.src}" height="${size}%" width="${size}%" x="${pos}%" y="${pos}%"></image>`;
+          }).finally( () => {
             this.renderElement(element);
           });
-          break;
-        case 'canvas':
-          element = this.renderer.createElement('canvas');
-          this.toCanvas(element).then(() => {
+        });
+      } else {
+        // Generation of CANVAS Component
+        element = this.renderer.createElement('canvas') as HTMLCanvasElement;
+        QRCode.toCanvas(element, this.qrdata, QRCodeOptionData, (err: any) => {
+          if (err) { throw err; }
+
+          this.loadLogo(element).then((logo) => {
+            // Add logo if avaiable
+            const size = Math.round(element.width * coeff);
+            const pos = Math.round((element.width - size) / 2);
+            element.getContext('2d').drawImage(logo, pos, pos, size, size);
+          }).finally( () => {
+            if (this.elementType !== QRCodeElementType.canvas) {
+              // Generation of IMG Component
+              const imgTag = this.renderer.createElement('img');
+              imgTag.setAttribute('src', element.toDataURL('image/png'));
+              element = imgTag;
+            }
             this.renderElement(element);
           });
-          break;
-        case 'url':
-        case 'img':
-        default:
-          element = this.renderer.createElement('img');
-          this.toDataURL().then((dataUrl: string) => {
-            element.setAttribute('src', dataUrl);
-            this.renderElement(element);
-          });
+        });
       }
     } catch (e) {
       console.error('[angularx-qrcode] Error generating QR Code: ', e.message);
     }
   }
 
-  private toDataURL(): Promise<any> {
-    return new Promise(
-      (resolve: (arg: any) => any, reject: (arg: any) => any) => {
-        QRCode.toDataURL(
-          this.qrdata,
-          {
-            color: {
-              dark: this.colorDark,
-              light: this.colorLight,
-            },
-            errorCorrectionLevel: this.errorCorrectionLevel,
-            margin: this.margin,
-            scale: this.scale,
-            version: this.version,
-            width: this.width,
-          },
-          (err, url) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(url);
-            }
-          }
-        );
-      }
-    );
-  }
+  private loadLogo(element: Element): Promise<HTMLImageElement> {
+    if (this.logo) {
+      return new Promise( resolve => {
+        const imgLogo = new Image();
+        imgLogo.onload = () => {
+          // resolve Promise when Image is loaded
+          resolve(imgLogo);
+        };
 
-  private toCanvas(canvas: Element): Promise<any> {
-    return new Promise(
-      (resolve: (arg: any) => any, reject: (arg: any) => any) => {
-        QRCode.toCanvas(
-          canvas,
-          this.qrdata,
-          {
-            color: {
-              dark: this.colorDark,
-              light: this.colorLight,
-            },
-            errorCorrectionLevel: this.errorCorrectionLevel,
-            margin: this.margin,
-            scale: this.scale,
-            version: this.version,
-            width: this.width,
-          },
-          (error) => {
-            if (error) {
-              reject(error);
-            } else {
-              resolve('success');
-            }
-          }
-        );
-      }
-    );
-  }
-
-  private toSVG(): Promise<any> {
-    return new Promise(
-      (resolve: (arg: any) => any, reject: (arg: any) => any) => {
-        QRCode.toString(
-          this.qrdata,
-          {
-            color: {
-              dark: this.colorDark,
-              light: this.colorLight,
-            },
-            errorCorrectionLevel: this.errorCorrectionLevel,
-            margin: this.margin,
-            scale: this.scale,
-            type: 'svg',
-            version: this.version,
-            width: this.width,
-          },
-          (err, url) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(url);
-            }
-          }
-        );
-      }
-    );
+        if (typeof this.logo === 'string') {
+          // Logo as string url
+          imgLogo.src = this.logo as string;
+        } else {
+          // Logo as file uploaded with <input type="file">
+          const reader = new FileReader();
+          reader.onload = () => {
+            imgLogo.src = reader.result as string;
+          };
+          reader.readAsDataURL(this.logo as File);
+        }
+      });
+    }
+    // There is no Logo to add
+    return Promise.reject('No Logo');
   }
 
   private renderElement(element: HTMLElement): void {
+    if (this.alt) {
+      element.setAttribute('alt', this.alt);
+    }
+
     for (const node of this.qrcElement.nativeElement.childNodes) {
       this.renderer.removeChild(this.qrcElement.nativeElement, node);
     }
@@ -195,6 +178,7 @@ export class QRCodeComponent implements OnChanges {
   }
 
   private checkQRData(): void {
+    // Check allowEmptyString
     let error: boolean = typeof this.qrdata === 'undefined';
     if (this.allowEmptyString === false) {
       error ||= this.qrdata === '' || this.qrdata === 'null' || this.qrdata === null;
