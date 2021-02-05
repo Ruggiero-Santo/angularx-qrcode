@@ -269,4 +269,4 @@ As of version 1.6.0, SSR support is fully implemented, the following workaround 
 
 MIT License
 
-Copyright (c) 2018 - present [Andreas Jacob (Cordobo.com)](http://cordobo.com/)
+Copyright (c) 2021 - present Ruggiero Santo
